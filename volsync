@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+
+# TIME, UID and GID come from environment variables
+# TIME affects how often to sync
+# UID and GID are the user/group ID to set synced files to,
+#       _on the host_.
+
+CONTAINER_DIR=/vol/container
+HOST_DIR=/vol/host
+
+while true; do
+    sleep ${TIME};
+
+    for FROM in ${CONTAINER_DIR}/*; do
+        [[ -d "${FROM}" ]] || continue
+        TO="${HOST_DIR}/$(basename "${FROM}")"
+
+        if [[ ! -d "${TO}" ]]; then
+            cat << EOF
+Container volume "${FROM}" does not have a matching host volume "${TO}"
+EOF
+
+            exit 1
+        fi
+
+        rsync \
+            --archive \
+            --chown=${UID}:${GID} \
+            --delete \
+            --verbose \
+            ${FROM}/ ${TO}/
+    done
+done
