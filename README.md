@@ -2,7 +2,7 @@
 
 * `jtreminio/volsync:latest` ([Dockerfile](https://github.com/jtreminio/volsync/blob/master/Dockerfile))
 
-[Docker Hub homepage](https://hub.docker.com/r/jtreminio/volsync/tags/)
+[Docker Hub homepage](https://hub.docker.com/r/jtreminio/volsync/)
 
 #### [This README best viewed on Github for formatting](https://github.com/jtreminio/volsync/blob/master/README.md)
 
