@@ -157,6 +157,26 @@ For example,
 
 `volsyn` scans `/vol/container` and sees `node_modules`, then syncs to `/vol/host/node_modules`.
 
+## Sync from host to container
+
+`volsync` can perform a one-time sync from host to container. This would happen when you first bring the container up and is useful if you already have files on your host that you want the container to immediately see and keep.
+
+_ANYTHING IN YOUR NAMED VOLUME WILL BE REPLACED BY THE HOST CONTAINER'S CONTENTS_.
+
+You can trigger this behavior by setting `PRESYNC=1`:
+
+    volsync:
+        image: jtreminio/volsync
+        environment:
+            - PRESYNC=1
+        volumes:
+            - modules:/vol/container/node_modules
+            - ./www/node_modules/:/vol/host/node_modules
+
+In this scenario your host's `./www/node_modules` contents would be copied into the `modules` volume and your container would keep this file when syncing back to host (unless you or your app removes the files).
+
+`PRESYNC` defaults to `0`, set to `1` to enable.
+
 ## Changing sync time, user/group ID
 
 You can change how often syncing occurs by setting the TIME variable:

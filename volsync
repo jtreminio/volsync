@@ -2,7 +2,8 @@
 set -e
 set -o pipefail
 
-# TIME, UID and GID come from environment variables
+# PRESYNC, TIME, UID and GID come from environment variables
+# PRESYNC if you want to copy from host to container one time
 # TIME affects how often to sync
 # UID and GID are the user/group ID to set synced files to,
 #       _on the host_.
@@ -10,16 +11,14 @@ set -o pipefail
 CONTAINER_DIR=/vol/container
 HOST_DIR=/vol/host
 
-while true; do
-    sleep ${TIME};
-
-    for FROM in ${CONTAINER_DIR}/*; do
+function do_the_needful() {
+    for FROM in ${1}/*; do
         [[ -d "${FROM}" ]] || continue
-        TO="${HOST_DIR}/$(basename "${FROM}")"
+        TO="${2}/$(basename "${FROM}")"
 
         if [[ ! -d "${TO}" ]]; then
             cat << EOF
-Container volume "${FROM}" does not have a matching host volume "${TO}"
+Volume "${FROM}" does not have a matching volume "${TO}"
 EOF
 
             exit 1
@@ -32,4 +31,30 @@ EOF
             --verbose \
             ${FROM}/ ${TO}/
     done
+}
+
+RAN=0
+
+while true; do
+    sleep ${TIME};
+
+    if [[ "${RAN}" -eq "0" ]] && [[ "${PRESYNC}" -eq "1" ]]; then
+        printf "\n"
+        printf "###########################################\n"
+        printf "# Running one-time host -> container sync #\n"
+        printf "###########################################\n"
+        printf "\n"
+
+        do_the_needful "${HOST_DIR}" "${CONTAINER_DIR}"
+    fi
+
+    printf "\n"
+    printf "##################################\n"
+    printf "# Running container -> host sync #\n"
+    printf "##################################\n"
+    printf "\n"
+
+    do_the_needful "${CONTAINER_DIR}" "${HOST_DIR}"
+
+    RAN=1
 done
