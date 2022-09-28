@@ -36,8 +36,6 @@ EOF
 RAN=0
 
 while true; do
-    sleep ${TIME};
-
     if [[ "${RAN}" -eq "0" ]] && [[ "${PRESYNC}" -eq "1" ]]; then
         printf "\n"
         printf "###########################################\n"
@@ -46,7 +44,11 @@ while true; do
         printf "\n"
 
         do_the_needful "${HOST_DIR}" "${CONTAINER_DIR}"
+
+        RAN=1
     fi
+
+    sleep ${TIME};
 
     printf "\n"
     printf "##################################\n"
